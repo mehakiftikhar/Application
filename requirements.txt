@@ -1,4 +1,9 @@
-streamlit
-python-dotenv
+gradio
+fitz
 PyMuPDF
+pdfplumber
+pytesseract
+pdf2image
+PyPDF2
 groq
+requests
