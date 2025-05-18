@@ -1,8 +1,4 @@
-gradio
-PyMuPDF==1.23.7
-pdfplumber
-pytesseract
-pdf2image
-PyPDF2
+streamlit
+python-dotenv
+PyMuPDF
 groq
-requests
