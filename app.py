@@ -8,13 +8,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize Groq Client
-# client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 def extract_form_fields(pdf_bytes):
-    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-    form_fields = {}
+    if not pdf_bytes or len(pdf_bytes) == 0:
+        raise ValueError("Uploaded file is empty or not a valid PDF.")
 
+    try:
+        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    except Exception as e:
+        raise ValueError(f"Failed to open PDF: {e}")
+
+    form_fields = {}
     for page in doc:
         for widget in page.widgets():
             key = widget.field_name
@@ -24,7 +29,14 @@ def extract_form_fields(pdf_bytes):
     return form_fields
 
 def get_pdf_text(pdf_bytes):
-    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    if not pdf_bytes or len(pdf_bytes) == 0:
+        raise ValueError("Uploaded file is empty or not a valid PDF.")
+
+    try:
+        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    except Exception as e:
+        raise ValueError(f"Failed to open PDF: {e}")
+
     text = ""
     for page in doc:
         text += page.get_text()
@@ -64,14 +76,23 @@ uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
 
 if uploaded_file:
     pdf_bytes = uploaded_file.read()
-    
-    with st.spinner("🔍 Extracting form fields..."):
-        fields = extract_form_fields(pdf_bytes)
-        text = get_pdf_text(pdf_bytes)
-        explanation = get_field_details(fields, text)
 
-    st.subheader("📋 Extracted Form Fields")
-    st.code(json.dumps(fields, indent=2), language='json')
+    if not pdf_bytes:
+        st.error("Uploaded file is empty. Please upload a valid PDF file.")
+    else:
+        with st.spinner("🔍 Extracting form fields..."):
+            try:
+                fields = extract_form_fields(pdf_bytes)
+                text = get_pdf_text(pdf_bytes)
+                explanation = get_field_details(fields, text)
 
-    st.subheader("💡 Field Descriptions")
-    st.code(explanation, language='json')
+                st.subheader("📋 Extracted Form Fields")
+                st.code(json.dumps(fields, indent=2), language='json')
+
+                st.subheader("💡 Field Descriptions")
+                st.code(explanation, language='json')
+
+            except ValueError as ve:
+                st.error(f"Error processing PDF: {ve}")
+            except Exception as e:
+                st.error(f"Unexpected error: {e}")
