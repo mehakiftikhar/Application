@@ -7,6 +7,7 @@ import pdfplumber
 import pytesseract
 import requests
 import gradio as gr
+import streamlit as st
 from PyPDF2 import PdfReader, PdfWriter
 from PyPDF2.generic import NameObject, BooleanObject
 from pdf2image import convert_from_bytes
