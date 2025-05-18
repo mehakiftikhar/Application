@@ -1,6 +1,5 @@
 gradio
-fitz
-PyMuPDF
+PyMuPDF==1.23.7
 pdfplumber
 pytesseract
 pdf2image
